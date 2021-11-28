@@ -20,11 +20,10 @@ package main;
 use strict;
 use warnings;
 use JSON;
-use Switch;
 use Scalar::Util qw(looks_like_number);
 
 use vars qw(%defs);
-require 'HttpUtils.pm';
+require HttpUtils;
 
 ##############################################
 my %HomeConnect_Iconmap = (
@@ -64,8 +63,6 @@ sub HomeConnect_Initialize($)
 sub HomeConnect_Set($@)
 {
   my ($hash, @a) = @_;
-  my $reDOUBLE = '^(\\d+\\.?\\d{0,2})$';
-  my $JSON = JSON->new->utf8(0)->allow_nonref;
 
   my $haId = $hash->{haId};
   my $cmdPrefix = $hash->{commandPrefix};

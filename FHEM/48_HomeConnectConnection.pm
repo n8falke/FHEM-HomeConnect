@@ -23,8 +23,6 @@ use strict;
 use warnings;
 use JSON;
 use URI::Escape;
-use Switch;
-use Data::Dumper; #debugging
 
 use vars qw($readingFnAttributes);
 use vars qw(%defs);
@@ -51,9 +49,6 @@ sub HomeConnectConnection_Initialize($)
 sub HomeConnectConnection_Set($@)
 {
   my ($hash, @a) = @_;
-  my $rc = undef;
-  my $reDOUBLE = '^(\\d+\\.?\\d{0,2})$';
-
   my ($gterror, $gotToken) = getKeyValue($hash->{NAME}."_accessToken");
 
   return "no set value specified" if(int(@a) < 2);
@@ -153,7 +148,6 @@ sub HomeConnectConnection_GetAuthToken
 {
   my ($hash,$tokens) = @_;
   my $name = $hash->{NAME};
-  my $JSON = JSON->new->utf8(0)->allow_nonref;
 
   my $error = $FW_webArgs{"error"};
   if (defined $error) {

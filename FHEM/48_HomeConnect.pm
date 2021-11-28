@@ -41,7 +41,8 @@ my @HomeConnect_SettablePgmOptions = (
   "Cooking.Oven.Option.SetpointTemperature",
   "ConsumerProducts.CoffeeMaker.Option.FillQuantity",
   "ConsumerProducts.CoffeeMaker.Option.BeanAmount",
-  "ConsumerProducts.CoffeeMaker.Option.CoffeeTemperature"
+  "ConsumerProducts.CoffeeMaker.Option.CoffeeTemperature",
+  "ConsumerProducts.CoffeeMaker.Option.BeanContainerSelection",
 );
 
 ##############################################

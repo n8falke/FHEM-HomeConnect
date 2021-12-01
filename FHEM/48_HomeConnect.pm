@@ -130,20 +130,22 @@ sub HomeConnect_Set($@)
     }
 
     my $options="";
-    foreach my $key ( @HomeConnect_SettablePgmOptions ) {
-      my $optval = ReadingsVal($hash->{NAME},$key,undef);
-      if (defined $optval) {
-        my @a = split("[ \t][ \t]*", $optval);
-        $options .= "," if (length($options)>0);
-        if (looks_like_number($a[0])) {
-          $options .= "{\"key\":\"$key\",\"value\":$a[0]";
-        } else {
-          $options .= "{\"key\":\"$key\",\"value\":\"$a[0]\"";
-        }
-        $options .= ",\"unit\":\"$a[1]\"" if defined $a[1];
-        $options .= "}";
-      }
-    }
+    # Use  default options of program, so a swith to new program can work
+    # foreach my $key ( @HomeConnect_SettablePgmOptions ) {
+    #   my $optval = ReadingsVal($hash->{NAME},$key,undef);
+    #   if (defined $optval) {
+    #     my @a = split("[ \t][ \t]*", $optval);
+    #     $options .= "," if (length($options)>0);
+    #     if (looks_like_number($a[0])) {
+    #       $options .= "{\"key\":\"$key\",\"value\":$a[0]";
+    #     } else {
+    #       $options .= "{\"key\":\"$key\",\"value\":\"$a[0]\"";
+    #     }
+    #     $options .= ",\"unit\":\"$a[1]\"" if defined $a[1];
+    #     $options .= "}";
+    #   }
+    # }
+
     # start a program
     my $data = {
       callback => \&HomeConnect_Response,
@@ -168,26 +170,30 @@ sub HomeConnect_Set($@)
     if (!defined $optval) {
       return "Please enter a new option value";
     }
-    my $newreading = $optval;
-    $newreading .= " ".$optunit if (defined $optunit);
-    readingsBeginUpdate($hash);
-    readingsBulkUpdate($hash, $command, $newreading);
-    readingsEndUpdate($hash, 1);
 
-    if ($pgmRunning) {
-      my $json = "{\"data\":{\"key\":\"$command\",\"value\":$optval";
-      $json .= ",\"unit\":\"$optunit\"" if (defined $optunit);
-      $json .= "}}";
-      # set option 
-      my $data = {
-        callback => \&HomeConnect_Response,
-        uri => "/api/homeappliances/$haId/programs/active/options/$command",
-        data => $json
-      };
-      HomeConnectConnection_request($hash, $data);
-    }
+    # do not set reading, status reports will show changes
+    # my $newreading = $optval;
+    # $newreading .= " ".$optunit if (defined $optunit);
+    # readingsBeginUpdate($hash);
+    # readingsBulkUpdate($hash, $command, $newreading);
+    # readingsEndUpdate($hash, 1);
 
+    # quote param if not number
+    $optval = '"' . $optval . '"' if !looks_like_number($optval);
+    my $json = "{\"data\":{\"key\":\"$command\",\"value\":$optval";
+    $json .= ",\"unit\":\"$optunit\"" if (defined $optunit);
+    $json .= "}}";
+    # set option "active" when program is running (supported for oven)
+    # or "selected" if program not running
+    my $data = {
+      callback => \&HomeConnect_Response,
+      uri => $pgmRunning ? "/api/homeappliances/$haId/programs/active/options/$command"
+                         : "/api/homeappliances/$haId/programs/selected/options/$command",
+      data => $json
+    };
+    HomeConnectConnection_request($hash, $data);
   }
+
   ## Change settings
   if(index($availableSets,$command)>-1) {
     my $setval = shift @a;
